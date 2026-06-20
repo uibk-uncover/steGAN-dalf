@@ -85,8 +85,8 @@ def parse_args() -> argparse.Namespace:
         description="Trained the proposed model with the GAN-like adversarial protocol."
     )
 
-    parser.add_argument('--data_dir', default=Path('../data'), type=Path, help='TODO')
-    parser.add_argument('--model_dir', default=Path('../models'), type=Path, help='TODO')
+    parser.add_argument('--data_dir', default=Path('../data'), type=Path, help='data directory')
+    parser.add_argument('--model_dir', default=Path('../models'), type=Path, help='model directory')
     parser.add_argument('--budget', default=.5, type=float, help='training budget')
     parser.add_argument('--num_epochs', default=15, type=int, help='number of training epochs')
     parser.add_argument('--batch_size', default=32, type=int, help='batch size')

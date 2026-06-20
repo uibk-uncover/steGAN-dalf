@@ -109,7 +109,6 @@ def main():
     )
     print(f'Changed {(x0 != x1).mean()*100:.02f}% of elements.')
 
-    # stego_path = f'../{args.cover.name}'  # TODO
     Image.fromarray(x1).save(args.stego)
     print(f'The stego object saved as "{args.stego}".')
 

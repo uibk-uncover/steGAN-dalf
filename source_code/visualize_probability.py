@@ -19,11 +19,11 @@ def probability(
     alpha: float,
     device: torch.device = None,
 ) -> np.ndarray:
-    """
+    """Calculate probability of the proposed method for the cover image.
 
-    :param x0:
-    :param alpha:
-    :param device:
+    :param x0: cover image
+    :param alpha: embedding rate
+    :param device: target device
     """
     # initialize
     if embed.GAN is None:
