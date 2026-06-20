@@ -138,17 +138,17 @@ def parse_args() -> argparse.Namespace:
         description="Visualize the probability map of the proposed method."
     )
 
-    parser.add_argument('--cover', required=True, type=Path, help='')
-    parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path)
-    parser.add_argument('--alpha', default=.4, type=float)
-    parser.add_argument('--clip', default=.3, type=float)
-    parser.add_argument('--device', default='cpu', type=str)
+    parser.add_argument('--cover', required=True, type=Path, help='TODO')
+    parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path, help='TODO')
+    parser.add_argument('--alpha', default=.4, type=float, help='TODO')
+    parser.add_argument('--clip', default=.3, type=float, help='TODO')
+    parser.add_argument('--device', default='cpu', type=str, help='TODO')
 
     return parser.parse_args()
 
 
 def main():
-    """"""
+    """Main function."""
     args = parse_args()
 
     data_dir = Path('../data')

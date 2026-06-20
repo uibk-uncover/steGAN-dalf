@@ -62,7 +62,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main():
-    """"""
+    """Main function."""
     args = parse_args()
 
     device = torch.device(args.device)

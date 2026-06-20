@@ -159,7 +159,6 @@ class AUCMeter(ROCMeter):
         return auc.item()
 
 
-
 class PredictionMeter(Meter):
     """Abstract class to calculate the rolling average value.
 
@@ -215,9 +214,6 @@ class LossMeter(PredictionMeter):
     def compute(self, *args, **kw) -> float:
         """"""
         ...  # placeholder
-
-
-
 
 
 class StdoutLogger:

@@ -58,8 +58,6 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument('--cover_dir', default=Path('../example_images/cover'), type=Path, help='TODO')
-    # parser.add_argument('--cover', required=True, type=Path, help='')
-    # parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path)
     parser.add_argument('--resolution', default=512, type=int, help='TODO')
     parser.add_argument('--device', default='cpu', type=str, help='TODO')
 

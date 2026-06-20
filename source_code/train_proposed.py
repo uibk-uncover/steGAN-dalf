@@ -82,17 +82,18 @@ def beta_budget(beta2: torch.Tensor, budget: float = 0) -> torch.Tensor:
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Visualize the probability map of the proposed method."
+        description="Trained the proposed model with the GAN-like adversarial protocol."
     )
 
-    parser.add_argument('--cover', required=True, type=Path, help='')
-    parser.add_argument('--model_dir', default=Path('../models'), type=Path)
-    parser.add_argument('--device', default='cpu', type=str)
+    parser.add_argument('--cover', required=True, type=Path, help='TODO')
+    parser.add_argument('--model_dir', default=Path('../models'), type=Path, help='TODO')
+    parser.add_argument('--device', default='cpu', type=str, help='TODO')
 
     return parser.parse_args()
 
 
 def main():
+    """Main function."""
     rng, g = _tools.seed_everything(12345)  # seed
 
     # parameters
