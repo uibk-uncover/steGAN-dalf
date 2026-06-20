@@ -221,7 +221,7 @@ class StdoutLogger:
     def __init__(
         self,
         file: str | TextIO = sys.stdout,
-        module: str = 'train_gan.py',
+        module: str = 'train.py',
     ):
         """"""
         #
@@ -239,6 +239,12 @@ class StdoutLogger:
         handler = logging.StreamHandler(self.file)  # log to file
         handler.setFormatter(formatter)
         self._log.addHandler(handler)
+
+        if self.file != sys.stdout:
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(formatter)
+            self._log.addHandler(console_handler)
+
         self._log.propagate = False
         self._log.setLevel(logging.INFO)
         self.module = module

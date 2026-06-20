@@ -5,15 +5,12 @@ Affiliation: University of Innsbruck
 """
 
 import argparse
-# import conseal as cl
 import cv2
 import json
 from glob import glob
 import numpy as np
-# import os
 import pandas as pd
 from pathlib import Path
-# from PIL import Image
 import time
 import torch
 
@@ -54,12 +51,12 @@ class AlaskaDataset(torch.utils.data.Dataset):
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Visualize the probability map of the proposed method."
+        description="Measure embedding speed of the proposed method."
     )
 
-    parser.add_argument('--cover_dir', default=Path('../example_images/cover'), type=Path, help='TODO')
-    parser.add_argument('--resolution', default=512, type=int, help='TODO')
-    parser.add_argument('--device', default='cpu', type=str, help='TODO')
+    parser.add_argument('--cover_dir', default=Path('../example_images/cover'), type=Path, help='cover directory')
+    parser.add_argument('--resolution', default=512, type=int, help='cover image resolution')
+    parser.add_argument('--device', default='cpu', type=str, help='target device')
 
     return parser.parse_args()
 

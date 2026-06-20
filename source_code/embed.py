@@ -26,7 +26,7 @@ def initialize_model(device: torch.device):
     #
     _stego.initialize(device)
     # load model
-    model_path = Path('../models/proposed')
+    model_path = Path('../models/steGANdalf')
     args = json.load(open(model_path / 'config.json'))
     net_a = _models.DepthwiseSeparableBlock(**args['net_a']).to(device)
     checkpoint = torch.load(model_path / 'model' / 'model_step_24000.pt.tar', map_location=torch.device('cpu'), weights_only=True)
@@ -81,14 +81,14 @@ def simulate(
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Visualize the probability map of the proposed method."
+        description="Embed into a cover image using the proposed method."
     )
 
-    parser.add_argument('--cover', default=Path('../example_images/cover/17416_cover296.png'), type=Path, help='TODO')
-    parser.add_argument('--stego', default=Path('../stego.png'), type=Path, help='TODO')
-    parser.add_argument('--alpha', default=.4, type=float, help='TODO')
-    parser.add_argument('--seed', default=12345, type=int, help='TODO')
-    parser.add_argument('--device', default='cpu', type=str, help='TODO')
+    parser.add_argument('--cover', default=Path('../example_images/cover/17416_cover296.png'), type=Path, help='cover image')
+    parser.add_argument('--stego', default=Path('../stego.png'), type=Path, help='stego image')
+    parser.add_argument('--alpha', default=.4, type=float, help='embedding rate')
+    parser.add_argument('--seed', default=12345, type=int, help='steganographic seed')
+    parser.add_argument('--device', default='cpu', type=str, help='target device')
 
     return parser.parse_args()
 

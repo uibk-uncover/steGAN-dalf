@@ -1,4 +1,4 @@
-2026-03-20 11:01:41 - INFO - Training of proposed/ started.
+2026-03-20 11:01:41 - INFO - Training of steGANdalf/ started.
 2026-03-20 11:01:47 - INFO - [0/30] None tau=1.000 Adversary training started.
 2026-03-20 11:02:19 - INFO - train27.py - tr: [ 0][5]  loss_a 0.3811  loss_e 2.0000  α27 0.4695  α3 0.5458  α3r 0.4055  α3g 0.2967  α3b 0.9352  β27 0.6817  β2 0.7765  β2r 0.0979  β2g 0.0727  β2b 0.6058  p_e 0.4896  roc_auc 0.5011  sd/loss_a 0.9101  sd/loss_e 0.4850  g/ρ27 0.0063  L2/ρ27 0.0496
 2026-03-20 11:02:25 - INFO - train27.py - tr: [ 0][10]  loss_a 0.3882  loss_e 1.9998  α27 0.4272  α3 0.5146  α3r 0.4788  α3g 0.3608  α3b 0.7043  β27 0.3090  β2 0.4287  β2r 0.1192  β2g 0.0828  β2b 0.2267  p_e 0.4886  roc_auc 0.5042  sd/loss_a 0.7470  sd/loss_e 0.3820  g/ρ27 0.0187  L2/ρ27 0.0077

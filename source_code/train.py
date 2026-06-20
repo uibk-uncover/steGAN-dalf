@@ -21,7 +21,7 @@ import _tools
 
 
 def format_log_line(res, loss_a, loss_e):
-    """"""
+    """Calculation of various quantities for logging."""
     # calculate the scores
     beta2_r, beta2_g, beta2_b = torch.mean(res.beta2_ch, dim=0)  # 2-ary change rate per channel
     alpha3_r, alpha3_g, alpha3_b = torch.mean(res.alpha3_ch, dim=0)  # 3-ary embedding rate per channel
@@ -43,7 +43,7 @@ def format_log_line(res, loss_a, loss_e):
     return d
 
 def format_gradients(res: SimpleNamespace) -> str:
-    """"""
+    """Calculation of gradients for logging."""
     gradient_l1 = lambda x, dim=(0, 1): x.grad.abs().sum(dim=(2, 3)).mean(dim=dim)
     g_x0r, g_x0g, g_x0b = gradient_l1(res.x0, dim=0)
     g = {
@@ -59,10 +59,10 @@ def format_gradients(res: SimpleNamespace) -> str:
 
 
 def hinge1(l0: torch.Tensor, l1: torch.Tensor) -> Tuple[torch.Tensor]:
-    """logits of x0 and x1 of shape [B, 2]
+    """Calculation of adversarial loss for the generator (loss_a) and discriminator (loss_e).
 
-    :param l0:
-    :param l1
+    :param l0: Cover logit, of shape [B 2].
+    :param l1: Stego logit, of shape [B 2].
     """
     score0, score1 = l0[:, 0], l1[:, 0]
     loss_a = torch.mean(score1)  # maximize fakes
@@ -71,10 +71,10 @@ def hinge1(l0: torch.Tensor, l1: torch.Tensor) -> Tuple[torch.Tensor]:
 
 
 def beta_budget(beta2: torch.Tensor, budget: float = 0) -> torch.Tensor:
-    """beta2 of shape [B, C, H, W]
+    """Calculation of the change rate budget.
 
-    :param beta2:
-    :param budget:
+    :param beta2: Binary probability map.
+    :param budget: Budget value.
     """
     return F.relu(torch.mean(beta2) - budget)
 
@@ -85,32 +85,37 @@ def parse_args() -> argparse.Namespace:
         description="Trained the proposed model with the GAN-like adversarial protocol."
     )
 
-    parser.add_argument('--cover', required=True, type=Path, help='TODO')
+    parser.add_argument('--data_dir', default=Path('../data'), type=Path, help='TODO')
     parser.add_argument('--model_dir', default=Path('../models'), type=Path, help='TODO')
-    parser.add_argument('--device', default='cpu', type=str, help='TODO')
+    parser.add_argument('--budget', default=.5, type=float, help='training budget')
+    parser.add_argument('--num_epochs', default=15, type=int, help='number of training epochs')
+    parser.add_argument('--batch_size', default=32, type=int, help='batch size')
+    parser.add_argument('--print_freq', default=10, type=int, help='print frequency')
+    parser.add_argument('--save_freq', default=250, type=int, help='save frequency')
+    parser.add_argument('--num_workers', default=8, type=int, help='number of workers')
+    parser.add_argument('--dry_run', action='store_true', help='dry run')
+    parser.add_argument('--device', default='cpu', type=str, help='target device')
 
     return parser.parse_args()
 
 
 def main():
     """Main function."""
-    rng, g = _tools.seed_everything(12345)  # seed
+    args = parse_args()
+
+    _tools.seed_everything(12345)  # seed
 
     # parameters
-    dry_run = False
-    print_freq = 10
-    save_freq = 250
-    take_num_images = None
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device(args.device)
     _stego.initialize(device)  # precompute persistent projection matrices
-    args = {
-        'data_dir': Path('../data'),
-        'model_dir': Path('../models'),
+    config = {
+        'data_dir': args.data_dir,
+        'model_dir': args.model_dir,
         'filters_cover': {'height': 296, 'width': 296},
-        'num_epochs': 15,
-        'batch_size': 32,
-        'budget': .5,  # change rate budget (avg. # changes per triplet)
-        'num_workers': 0,  #
+        'num_epochs': args.num_epochs,
+        'batch_size': args.batch_size,
+        'budget': args.budget,  # change rate budget (avg. # changes per triplet)
+        'num_workers': args.num_workers,  #
         'shuffle_seed': 12345,
         'alpha_range': {'low': .1, 'high': 1.},
         'net_a': {
@@ -126,41 +131,36 @@ def main():
     }
 
     # model
-    run_name = f'adversarial-{datetime.now().strftime("%y%m%d%H%M%S")}'
-    run_dir = args['model_dir'] / run_name
+    run_name = f'steGANdalf-{datetime.now().strftime("%y%m%d%H%M%S")}'
+    run_dir = config['model_dir'] / run_name
     run_model_dir = run_dir / 'model'
-    args_file = run_dir / 'config.json'
-    if not dry_run:
+    config_file = run_dir / 'config.json'
+    if not args.dry_run:
         run_dir.mkdir(exist_ok=False)
         run_model_dir.mkdir(exist_ok=False)
-        with open(args_file, 'w') as f:
-            json.dump(args, f, indent=2, sort_keys=True, default=str)
-    if not dry_run:
-        log_f = open(run_dir / 'stdout.log', 'a')
+        with open(config_file, 'w') as f:
+            json.dump(config, f, indent=2, sort_keys=True, default=str)
     #
-    log = _tools.StdoutLogger(module=Path(__file__).name)
+    log = _tools.StdoutLogger(file=run_dir / 'stdout.log', module=Path(__file__).name)
     log.info(f'Training of {run_name} started.')
 
     # data
-    tr_loader, tr_dataset = _data.get_data_loader('split_tr.csv', {**args}, drop_last=True)
-    va_loader, va_dataset = _data.get_data_loader('split_va.csv', {**args, 'alpha': .4}, take_num_images=128, drop_last=True)
+    tr_loader, tr_dataset = _data.get_data_loader('split_tr.csv', config, cover_dir='images')
 
     # networks
-    net_a = _models.DepthwiseSeparableBlock(**args['net_a']).to(device)
-    net_e = _models.UcNetD(**args['net_e']).to(device)
+    net_a = _models.DepthwiseSeparableBlock(**config['net_a']).to(device)
+    net_e = _models.UcNetD(**config['net_e']).to(device)
     gan = _stego.StegoGAN27(net_a=net_a, net_e=net_e)
 
     # optimizers
-    optimizer_a = torch.optim.RMSprop(net_a.parameters(), **args['optimizer_a'])
-    optimizer_e = torch.optim.RMSprop(net_e.parameters(), **args['optimizer_e'])
+    optimizer_a = torch.optim.RMSprop(net_a.parameters(), **config['optimizer_a'])
+    optimizer_e = torch.optim.RMSprop(net_e.parameters(), **config['optimizer_e'])
 
     #
-    best_pe_va = -np.inf
     epoch_start = 0
-    step_start = 0
-    for epoch in range(epoch_start, args['num_epochs']):
+    for epoch in range(epoch_start, config['num_epochs']):
         tr_dataset.reshuffle()
-        log.info(f'[{epoch:d}/{args["num_epochs"]:02d}] {args["alpha_range"]} Adversary training started.')
+        log.info(f'[{epoch:d}/{config["num_epochs"]:02d}] {config["alpha_range"]} Adversary training started.')
 
         # adversary training over minibatches
         loss_a_meter = _tools.LossMeter(gamma=.9, device=device)
@@ -187,8 +187,8 @@ def main():
                     mode='a',
                 )
                 loss_a, _ = hinge1(res.l0, res.l1)
-                if args['budget'] is not None:
-                    loss_a += beta_budget(res.beta2, budget=args['budget'])
+                if config['budget'] is not None:
+                    loss_a += beta_budget(res.beta2, budget=config['budget'])
                 #
                 loss_a.backward()
                 scores_g = format_gradients(res)
@@ -234,7 +234,7 @@ def main():
                 }
 
             # check model
-            if step > 0 and step % print_freq == 0:
+            if step > 0 and step % args.print_freq == 0:
                 log.log_scalars(
                     scores,
                     split='tr',
@@ -243,9 +243,8 @@ def main():
                     fmt='%.04f',
                     num_batches=len(tr_loader),
                 )
-            if step > 0 and step % save_freq == 0:
-                if not dry_run:
-                    log_f.flush()
+            if step > 0 and step % args.save_freq == 0:
+                if not args.dry_run:
                     latest_model_file = run_model_dir / f'model_step_{step}.pt.tar'
                     torch.save({
                         'epoch': epoch,
@@ -265,9 +264,6 @@ def main():
                         'torch_rng_state': torch.get_rng_state(),
                         'cuda_rng_state': torch.cuda.get_rng_state_all(),
                     }, latest_model_file)
-    #
-    if not dry_run:
-        log_f.close()
 
 
 if __name__ == '__main__':

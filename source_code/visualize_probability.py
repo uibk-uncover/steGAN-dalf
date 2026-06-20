@@ -11,7 +11,7 @@ from pathlib import Path
 from PIL import Image
 import torch
 
-import embed_proposed
+import source_code.embed as embed
 
 
 def probability(
@@ -26,14 +26,14 @@ def probability(
     :param device:
     """
     # initialize
-    if embed_proposed.GAN is None:
+    if embed.GAN is None:
         if device is None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        embed_proposed.initialize_model(device=device)
+        embed.initialize_model(device=device)
     # convert to torch
     x0_ = torch.from_numpy(x0.astype('float32').transpose(2, 0, 1) / 255.)[None].to(device)
     # calculate the probabilities
-    res_a = embed_proposed.GAN.get_probabilities(
+    res_a = embed.GAN.get_probabilities(
         x0=x0_,
         alpha=alpha,
         mode='pass',
@@ -51,12 +51,12 @@ def parse_args() -> argparse.Namespace:
         description="Visualize the probability map of the proposed method."
     )
 
-    parser.add_argument('--cover_dir', default=Path('../example_images/cover'), type=Path, help='TODO')
-    parser.add_argument('--cover_image', default=None, type=Path, help='TODO')
-    parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path, help='TODO')
-    parser.add_argument('--alpha', default=.4, type=float, help='TODO')
-    parser.add_argument('--clip', default=.3, type=float, help='TODO')
-    parser.add_argument('--device', default='cpu', type=str, help='TODO')
+    parser.add_argument('--cover_dir', default=Path('../example_images/cover'), type=Path, help='cover image')
+    parser.add_argument('--cover_image', default=None, type=Path, help='cover directory')
+    parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path, help='output directory')
+    parser.add_argument('--alpha', default=.4, type=float, help='embedding rate')
+    parser.add_argument('--clip', default=.3, type=float, help='colorbar max. probability')
+    parser.add_argument('--device', default='cpu', type=str, help='target device')
 
     return parser.parse_args()
 

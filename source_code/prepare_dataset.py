@@ -1,4 +1,4 @@
-"""
+"""Generator of the dataset.
 
 Author: Martin Benes
 Affiliation: University of Innsbruck
@@ -16,13 +16,13 @@ import torch
 from tqdm import tqdm
 
 import _data
-from embed_proposed import simulate
+from embed import simulate
 
 
 def prepare_covers(data_dir: Path):
-    """
+    """Generator of covers.
 
-    :param data_dir:
+    :param data_dir: Dataset directory.
     """
 
     # initialize
@@ -34,9 +34,6 @@ def prepare_covers(data_dir: Path):
         pd.read_csv('../data/split_tr.csv'),
         pd.read_csv('../data/split_va.csv'),
         pd.read_csv('../data/split_te.csv'),
-        # pd.read_csv('../data/split_tr.csv.gz', compression='gzip'),
-        # pd.read_csv('../data/split_va.csv.gz', compression='gzip'),
-        # pd.read_csv('../data/split_te.csv.gz', compression='gzip'),
     ]).sort_values('name').reset_index(drop=True)
 
     #
@@ -69,15 +66,15 @@ def prepare_covers(data_dir: Path):
 
 
 def prepare_stego(data_dir: Path, cover_dir: Path, alpha: float, device: torch.device):
-    """
+    """Generator of stego images.
 
-    :param data_dir:
-    :param cover_dir:
-    :param alpha:
-    :param device:
+    :param data_dir: Dataset directory (for the output).
+    :param cover_dir: Cover image directory.
+    :param alpha: Embedding rate.
+    :param device: Target device.
     """
     #
-    with open('../models/proposed/config.json') as f:
+    with open('../models/steGANdalf/config.json') as f:
         args = json.load(f)
     args = {
         **args,
@@ -91,8 +88,8 @@ def prepare_stego(data_dir: Path, cover_dir: Path, alpha: float, device: torch.d
     }
 
     # generate dataset
-    all_loader, all_dataset = _data.get_data_loader((cover_dir / 'files.csv').relative_to(data_dir), args, drop_last=False)
-    stego_method = 'proposed_step_24000'
+    all_loader, all_dataset = _data.get_data_loader((cover_dir / 'files.csv').relative_to(data_dir), args)
+    stego_method = 'steGANdalf_step_24000'
     stego_dir = Path(f'../data/stego_{stego_method}_{alpha}_joint27_images')
     stego_dir.mkdir(exist_ok=False)
     try:
@@ -135,14 +132,12 @@ def prepare_stego(data_dir: Path, cover_dir: Path, alpha: float, device: torch.d
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Visualize the probability map of the proposed method."
+        description="Script to generate the ALASKA dataset."
     )
 
-    parser.add_argument('--cover', required=True, type=Path, help='TODO')
-    parser.add_argument('--out_dir', default=Path('../example_images/probability'), type=Path, help='TODO')
-    parser.add_argument('--alpha', default=.4, type=float, help='TODO')
-    parser.add_argument('--clip', default=.3, type=float, help='TODO')
-    parser.add_argument('--device', default='cpu', type=str, help='TODO')
+    parser.add_argument('--data_dir', default='../data', type=Path, help='dataset directory')
+    parser.add_argument('--alpha', default=.4, type=float, help='embedding rate')
+    parser.add_argument('--device', default='cpu', type=str, help='target device')
 
     return parser.parse_args()
 
@@ -151,14 +146,15 @@ def main():
     """Main function."""
     args = parse_args()
 
-    data_dir = Path('../data')
-    cover_dir = data_dir / 'images'
-    alpha = .4
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    #
-    prepare_covers(data_dir=data_dir)
-    prepare_stego(data_dir=data_dir, cover_dir=cover_dir, alpha=alpha, device=device)
+    device = torch.device(args.device)
 
+    prepare_covers(data_dir=args.data_dir)
+    prepare_stego(
+        data_dir=args.data_dir,
+        cover_dir=args.data_dir / 'images',
+        alpha=args.alpha,
+        device=device,
+    )
 
 
 if __name__ == '__main__':

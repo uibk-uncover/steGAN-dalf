@@ -6,7 +6,7 @@
   "batch_size": 32,
   "budget": 0.5,
   "data_dir": "../data",
-  "model_dir": "../adversarial_models",
+  "model_dir": "../models",
   "net_a": {
     "in_channels": 3,
     "out_channels": 27

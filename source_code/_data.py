@@ -22,6 +22,7 @@ class CoverDataset(torch.utils.data.Dataset):
         self,
         data_dir: Path | str,
         split: str,
+        cover_dir: str = None,
         shuffle_seed: int = None,
         transform: Optional[Callable] = None,
     ):
@@ -38,6 +39,10 @@ class CoverDataset(torch.utils.data.Dataset):
 
         # get selected dataset
         self.config_cover = pd.read_csv(self.data_dir / split, low_memory=False)
+        if cover_dir is not None:
+            cover_dir = Path(cover_dir)
+            self.config_cover['name'] = self.config_cover['name'].apply(
+                lambda name: str(cover_dir / name))
         assert len(self.config_cover) > 0, 'no such covers found'
 
         to_remove = []
@@ -52,7 +57,7 @@ class CoverDataset(torch.utils.data.Dataset):
         self.reshuffle()
 
         # check dataset
-        assert len(self.config_cover) > 0, 'no such covers found, did you forget running preprocess_dataset.py?'
+        assert len(self.config_cover) > 0, 'no such covers found, did you forget running prepare_dataset.py?'
 
     def __len__(self) -> int:
         """Dataset length."""
@@ -159,6 +164,7 @@ def get_transform(
 def get_data_loader(
     split: str,
     config: Dict[str, Any],
+    cover_dir: str = None,
     **kw,
 ) -> Tuple[torch.utils.data.DataLoader, torch.utils.data.Dataset]:
     """Construct dataset and dataloader.
@@ -180,6 +186,7 @@ def get_data_loader(
         # dataset
         data_dir=config['data_dir'],
         split=split,
+        cover_dir=cover_dir,
         # pair constraint
         shuffle_seed=config.get('shuffle_seed', None),
         # other
@@ -193,7 +200,7 @@ def get_data_loader(
         shuffle=False,
         num_workers=config.get('num_workers', 0),
         pin_memory=True,
-        drop_last=True,
+        drop_last=False,
         **kw,
     )
 
