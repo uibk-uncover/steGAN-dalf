@@ -1,4 +1,4 @@
-# Supplementary material
+# utomating Color Image Steganography Research from First Principles
 
 This repository contains the source code and trained models for the paper 'Automating Color Image Steganography Research from First Principles', published at ESORICS 2026.
 
@@ -57,6 +57,11 @@ For the end-to-end methods, we use the following implementations:
 | PTS            | https://github.com/Sanakkk3/Color-Image-Steganography-Using-Generative-Adversarial-Networks-with-a-Phased-Training-Strategy |             | kindly provided by Saixing Zhou and Weiqi Luo |
 
 We provide example images and the prediction vectors over the test set for these methods.
+
+
+## The method name
+
+For those who are curious, the name steGAN-dalf stands for **s**teganographic **GAN** - **d**ifferentiable **a**dversarial **l**earning-based **f**ramework.
 
 
 ## Publishing
