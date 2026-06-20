@@ -28,14 +28,14 @@ This archive is structured as follows:
 The source code lets you reproduce the following steps:
 
 
-| Script                               | Behavior                                                                         |
-|--------------------------------------|----------------------------------------------------------------------------------|
-| detector_predictions/calculate_pe.py | Recalculates the PE from all the detector logits in the folder.                  |
-| source_code/measure_speed.py         | Measures the embedding speed of HILL, WOW and the proposed method.               |
-| source_code/embed_proposed.py        | Simulates steganographic embedding into a cover image using the proposed method. |
-| source_code/prepare_dataset.py       | Downloads and prepares the ALASKA dataset.                                       |
-| source_code/train_gan.py             | Performs the adversarial training. (computationally expensive)                   |
-| source_code/visualize_probability.py | Performs the adversarial training. (computationally expensive)                   |
+| Script                               | Behavior                                                        |
+|--------------------------------------|-----------------------------------------------------------------|
+| detector_predictions/calculate_pe.py | Recalculates the PE from all the detector logits in the folder. |
+| source_code/measure_speed.py         | Measures the embedding speed of the proposed method.            |
+| source_code/embed.py                 | Simulates embedding with the proposed method.                   |
+| source_code/prepare_dataset.py       | Downloads and prepares the ALASKA dataset.                      |
+| source_code/train.py                 | Performs the adversarial training. (computationally expensive)  |
+| source_code/visualize_probability.py | Visualizes the probability map.                                 |
 
 
 ## Dataset
