@@ -1,4 +1,4 @@
-# utomating Color Image Steganography Research from First Principles
+# Automating Color Image Steganography Research from First Principles
 
 This repository contains the source code and trained models for the paper 'Automating Color Image Steganography Research from First Principles', published at ESORICS 2026.
 
